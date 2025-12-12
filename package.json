@@ -1,5 +1,5 @@
 {
-  "name": "vocalremover-clone-vercel",
+  "name": "vocalremover-clone-vercel-full",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -14,12 +14,11 @@
     "next": "^15.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "replicate": "^0.34.0",
-    "uuid": "^9.0.1"
+    "replicate": "^0.34.0"
   },
   "devDependencies": {
-    "@types/node": "25.0.1",
-    "@types/react": "19.2.7",
-    "typescript": "5.9.3"
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.3.1",
+    "typescript": "^5.6.3"
   }
 }
