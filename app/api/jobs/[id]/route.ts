@@ -22,8 +22,8 @@ function pickFromArray(urls: string[], needle: string) {
   return urls.find((u) => u.toLowerCase().includes(n));
 }
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
-  const id = params.id;
+export async function GET(req: Request, context: any) {
+  const id = context?.params?.id as string;
   const job = (await kv.get(`job:${id}`)) as Job | null;
   if (!job) return new Response("Not found", { status: 404 });
 
