@@ -24,6 +24,7 @@ function pickFromArray(urls: string[], needle: string) {
 
 export async function GET(req: Request, context: any) {
   const id = context?.params?.id as string;
+
   const job = (await kv.get(`job:${id}`)) as Job | null;
   if (!job) return new Response("Not found", { status: 404 });
 
@@ -49,7 +50,7 @@ export async function GET(req: Request, context: any) {
   const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
   const pred: any = await replicate.predictions.get(predictionId);
 
-  const status = pred.status;
+  const status = pred.status; // starting | processing | succeeded | failed | canceled
   if (status === "starting") job.progress = Math.max(job.progress ?? 5, 10);
   if (status === "processing") job.progress = Math.max(job.progress ?? 10, 35);
 
@@ -68,13 +69,15 @@ export async function GET(req: Request, context: any) {
 
     if (out && typeof out === "object" && !Array.isArray(out)) {
       vocalsUrl = out.vocals ?? out.vocal ?? out["vocals.wav"] ?? out["vocals.mp3"] ?? out["vocals"];
-      instrumentalUrl = out.no_vocals ?? out.instrumental ?? out.accompaniment ?? out["no_vocals.wav"] ?? out["no_vocals.mp3"];
+      instrumentalUrl =
+        out.no_vocals ?? out.instrumental ?? out.accompaniment ?? out["no_vocals.wav"] ?? out["no_vocals.mp3"];
     } else if (Array.isArray(out)) {
       const urls = out.filter((x) => typeof x === "string") as string[];
       vocalsUrl = pickFromArray(urls, "vocals") ?? pickFromArray(urls, "vocal");
-      instrumentalUrl = pickFromArray(urls, "no_vocals") ?? pickFromArray(urls, "instrumental") ?? pickFromArray(urls, "accompaniment");
+      instrumentalUrl =
+        pickFromArray(urls, "no_vocals") ?? pickFromArray(urls, "instrumental") ?? pickFromArray(urls, "accompaniment");
     } else if (typeof out === "string") {
-      job.message = "Model returned a single file. Prefer a Demucs model that outputs separate stems.";
+      job.message = "Model returned a single file. Prefer a model that outputs separate stems.";
     }
 
     job.status = "done";
@@ -82,7 +85,9 @@ export async function GET(req: Request, context: any) {
     job.output = { vocalsUrl, instrumentalUrl };
 
     if (!vocalsUrl || !instrumentalUrl) {
-      job.message = (job.message ? job.message + " " : "") + "Tách xong nhưng không map được vocals/instrumental. Đổi model/version hoặc sửa mapping.";
+      job.message =
+        (job.message ? job.message + " " : "") +
+        "Tách xong nhưng không map được vocals/instrumental trong output. Đổi model/version hoặc sửa mapping.";
     }
 
     await kv.set(`job:${id}`, job);
