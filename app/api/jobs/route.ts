@@ -46,7 +46,7 @@ export async function POST(req: Request) {
   await kv.expire(`job:${id}`, 60 * 60 * 6);
 
   const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-  const model = process.env.REPLICATE_MODEL ?? "facebookresearch/demucs";
+  const model = process.env.REPLICATE_MODEL ?? "replicate/demucs";
   const version = process.env.REPLICATE_MODEL_VERSION ?? (await resolveModelVersion(replicate, model));
 
   const prediction = await replicate.predictions.create({
